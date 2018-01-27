@@ -1,0 +1,4 @@
+board(B)
+  printf("Board: %s\nSize: %d\nTime: %s\n",
+         B.name, filesize(B.name),
+         t2string(filetime(B.name)));

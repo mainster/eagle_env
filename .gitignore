@@ -1,0 +1,7 @@
+eagle_projects
+projectsHSK.zip
+projectsHSK/eagle_bis_F-107.zip
+projectsHSK/tmp*
+
+*.[sbl]#[\#0-9]
+

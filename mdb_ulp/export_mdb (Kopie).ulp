@@ -1,0 +1,259 @@
+#usage "Export different layers to current project folder\n"
+"Usage: RUN export_mdb.ulp"
+
+
+
+string HELP = "<qt><b>export_mdb</b> Export different layers to current project subfolder.<p>" +
+               "RUN export_mdb (<i>This help</i>)<br>" +
+               "RUN export_mdb <b>-d DIR</b> <i>Relative subdirectory name</i><br>" +
+               "RUN export_mdb <b>-r NUMERIC</b> <i>Image resolution in DPI</i><br>" +
+
+               "<author>Author: Manuel.DelBasso@gmail.com</author></qt>";
+
+/////////////////////////
+// Flags - Definitions:
+/////////////////////////
+int SHORT_OUTFILE = 0;
+string SHORT_PREFIX_SCH = "schPic.dummy";
+string SHORT_PREFIX_BRD = "brdPic.dummy";
+
+/////////////////////////
+// Definitions:
+/////////////////////////
+string RES = "100";
+string FORMAT = "png";
+string OUTDIR = "";
+string OUTFILE = "";
+string ss;
+string usedLayer[];
+int idx = 0;
+int initial = 1;
+/////////////////////////
+// Statements:
+/////////////////////////
+string timeForm (void) {
+	string tmp;
+	int t=time();
+	sprintf(tmp,"%d-%d-%d_%d:%d:%d", t2day(t),t2month(t),t2year(t),t2hour(t),t2minute(t),t2second(t));
+	return(tmp);
+}
+
+
+/////////////////////////////////////
+///////////  BOARD  //////////////////
+/////////////////////////////////////
+if (board) board(B) {
+	if (!argv[1]) {
+		dlgMessageBox(HELP, "OK");
+		dlgMessageBox(usage, "OK");
+		exit(0);
+    }
+
+	if (argv[1] == "-d") {
+		OUTDIR = filedir(B.name) + argv[2];
+	}
+	else {
+		OUTDIR = filesetext(B.name,"_" + timeForm());
+	}
+
+ 	if (argv[1] == "-r") {
+		RES = argv[2];   // Change default resolution
+	}
+	else {
+	 	if (argv[1] == "-f") {
+			FORMAT = argv[2];   // Change default image format
+		}
+	}
+
+ 	if (argv[3] == "-r") {
+		RES = argv[4];   // Change default resolution
+	}
+	else {
+ 	if (argv[3] == "-f") {
+			FORMAT = argv[4];   // Change default image format
+		}
+	}
+
+	if (argv[5] == "-r") {
+		RES = argv[6];   // Change default resolution
+	}
+	else {
+ 	if (argv[5] == "-f") {
+			FORMAT = argv[6];   // Change default image format
+		}
+	}
+
+	OUTDIR = OUTDIR + "/brd";
+	system("mkdir -p " + OUTDIR);		// per syscall neuen Ordner anlegen
+
+	system("rm " + OUTDIR + "/*.png");		// alte pngs löschen wegen ungewolltem overwrite dialog 
+	system("rm " + OUTDIR + "/*.bmp");
+	system("rm " + OUTDIR + "/*.tif");	
+
+	if (SHORT_OUTFILE) {			// Schalter für dateinamen
+		OUTFILE = OUTDIR + "/" + filesetext(SHORT_PREFIX_BRD, "." + FORMAT);
+	}
+	else {
+		OUTFILE = OUTDIR + "/" + filesetext(filename(B.name), "." + FORMAT);
+	}
+
+	output(filesetext(OUTFILE, ".layer")) {
+		B.layers(L) {
+			if (L.used) {
+				usedLayer[idx] = L.name;
+				printf("%s\t%d\n", usedLayer[idx], L.number);
+		//		sprintf(ss,"Layer %3d %s\n", L.number, L.name);
+		//		if(dlgMessageBox(ss, "&Yes", "&No") == 0) exit(0);
+			}
+		}
+	}
+
+//	output(filesetext(B.name,".scr")) {
+	output(filesetext(OUTFILE, ".scr"), "wt") {
+		printf("#%s\n", B.name);
+
+		// TOP cu //
+		printf("Disp none dim top via pad\n");
+		printf("ratsnest\n");
+		printf("export IMAGE %s %s\n", filesetext(OUTFILE, "_TOP_CU." + FORMAT), RES);
+
+		// BOT cu //
+		printf("Disp none dim bot via pad\n");
+		printf("ratsnest\n");
+		printf("export IMAGE %s %s\n", filesetext(OUTFILE, "_BOT_CU." + FORMAT), RES);
+
+		// TOP place via//
+		printf("Disp none dim tpl tdoc via\n");
+		printf("export IMAGE %s %s\n", filesetext(OUTFILE, "_TOP_PLACE_VIA." + FORMAT), RES);
+
+		// TOP place //
+		printf("Disp none dim tpl tdoc \n");
+		printf("export IMAGE %s %s\n", filesetext(OUTFILE, "_TOP_PLACE." + FORMAT), RES);
+
+		// BOT place via //
+		printf("Disp none dim bpl bdoc via\n");
+		printf("export IMAGE %s %s\n", filesetext(OUTFILE, "_BOT_PLACE_VIA." + FORMAT), RES);
+
+		// BOT place //
+		printf("Disp none dim bpl bdoc\n");
+		printf("export IMAGE %s %s\n", filesetext(OUTFILE, "_BOT_PLACE." + FORMAT), RES);
+
+		// Top Planes //
+		printf("Disp none dim tpl tdoc tagnd tdgnd tgnd turk text2\n");
+		printf("export IMAGE %s %s\n", filesetext(OUTFILE, "_TOP_GND_DECOUP." + FORMAT), RES);
+
+		// Top Jumpers //
+		printf("disp none tjum tdoc tpl dim\n");
+		printf("export IMAGE %s %s\n", filesetext(OUTFILE, "_TOP_JUMPER." + FORMAT), RES);
+
+		// Top Signal Flow //
+		printf("disp none tdoc tpl case text dim \n");
+		printf("export IMAGE %s %s\n", filesetext(OUTFILE, "_TOP_SIGNAL_FLOW." + FORMAT), RES);
+
+		// dim measure //
+		printf("disp none tdoc tpl dim measure  \n");
+		printf("export IMAGE %s %s\n", filesetext(OUTFILE, "_MEASURE." + FORMAT), RES);
+	}
+
+	sprintf(ss,"scr %s;",filesetext(OUTFILE, ".scr"));
+	exit(ss);
+}
+
+/////////////////////////////////////
+///////////  Schematic  /////////////
+/////////////////////////////////////
+
+if (schematic) schematic(S) {
+	string ss;
+//	S.sheets(SH) {
+//		sprintf(ss, "Sheet No: %d\n", SH.number);
+//		SH.number = 2;
+//		sprintf(ss, "Sheet No: %d\n", SH.number);
+//	}
+
+//	dlgMessageBox(ss, "OK");
+
+	if (!argv[1]) {
+		dlgMessageBox(HELP, "OK");
+		dlgMessageBox(usage, "OK");
+		exit(0);
+    }
+
+	if (argv[1] == "-d") {
+		OUTDIR = filedir(S.name) + argv[2];
+	}
+	else {
+		OUTDIR = filesetext(S.name,"_" + timeForm());
+	}
+
+ 	if (argv[1] == "-r") {
+		RES = argv[2];   // Change default resolution
+	}
+	else {
+	 	if (argv[1] == "-f") {
+			FORMAT = argv[2];   // Change default image format
+		}
+	}
+
+ 	if (argv[3] == "-r") {
+		RES = argv[4];   // Change default resolution
+	}
+	else {
+ 	if (argv[3] == "-f") {
+			FORMAT = argv[4];   // Change default image format
+		}
+	}
+
+	if (argv[5] == "-r") {
+		RES = argv[6];   // Change default resolution
+	}
+	else {
+ 	if (argv[5] == "-f") {
+			FORMAT = argv[6];   // Change default image format
+		}
+	}
+
+	OUTDIR = OUTDIR + "/sch";
+	system("mkdir -p " + OUTDIR);		// per syscall neuen Ordner anlegen
+
+	system("rm " + OUTDIR + "/*.png");		// alte pngs löschen wegen ungewolltem overwrite dialog 
+	system("rm " + OUTDIR + "/*.bmp");
+	system("rm " + OUTDIR + "/*.tif");	
+
+
+	if (SHORT_OUTFILE) {			// Schalter für dateinamen
+		OUTFILE = OUTDIR + "/" + filesetext(SHORT_PREFIX_SCH, "." + FORMAT);
+	}
+	else {
+		OUTFILE = OUTDIR + "/" + filesetext(filename(S.name), "." + FORMAT);
+	}
+
+	int N_SHEETS = 8;	
+ 	int k = 0;
+ 	string nameapp;
+
+ 	string tt;
+ 
+
+	output(OUTFILE + ".scr", "wt") {
+		///////////////////////////////////////////////
+		// Falls nicht vom ersten sheet gestartet wird
+		///////////////////////////////////////////////
+		int i = 0;
+		for (i=0; i < 20; i++) {
+			printf("run editprev-sheet\n");
+		}	
+
+		S.sheets(SH) {
+			printf("#%s\n", S.name);
+				// prim //
+				sprintf(nameapp, "_PAGE_%d.", SH.number);
+				printf("disp none net sym names val info mech2\n");
+				printf("export IMAGE %s %s\n", filesetext(OUTFILE, nameapp + FORMAT), RES);
+				printf("run editnext-sheet\n");
+		}
+	}
+	sprintf(ss,"scr %s.scr;",OUTFILE);
+//	ss=";";
+	exit(ss);
+}
