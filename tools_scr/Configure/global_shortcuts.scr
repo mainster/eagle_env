@@ -28,6 +28,7 @@ BRD:
 		
 #Evoluent Vertical Mouse
 
+	ASSIGN C+R 		'route';
 		#buttons 6+1 = C+M
 	ASSIGN C+M 		MOVE; #mouse thumb+forefinger=C+M
 	ASSIGN CA+M 	'SET WIRE_BEND 1; SPLIT'; #mouse Alt-thumb+forefinger=C+M
@@ -137,6 +138,7 @@ BRD:
 
 #	ASSIGN F5 		'RATSNEST * ! GN*';
 	ASSIGN F5 		'RATS';
+	ASSIGN CS+R		'RATS';
 	ASSIGN A+F5 	'run hide-airwires';
 	ASSIGN S+F5 	'SET POLYGON_RATSNEST OFF';
 	#ASSIGN C+F5 	'RATSNEST *';
@@ -186,7 +188,7 @@ SCH:
 	ASSIGN CA+L 	LINE;
 	ASSIGN C+T 		TEXT;
 	ASSIGN C+V 		PASTE;
-	ASSIGN C+W 		LINE;
+	ASSIGN C+W 		NET;
 	ASSIGN C+X 		CHANGE;
 	ASSIGN C+Y 		REDO;
 	ASSIGN C+Z 		UNDO;

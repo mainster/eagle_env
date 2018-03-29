@@ -6,7 +6,7 @@
 # Bring in modular setup scripts
 
 #SCRIPT COLORS.scr
-SCRIPT SHORTCUTS.scr
+SCRIPT global_shortcuts.scr
 SCRIPT menu.scr
 
 #----------------------------------#
@@ -100,10 +100,10 @@ SCRIPT LAYERS.scr #Set layers from master, Not ready yet. EXP-LAYERS.ulp in prog
         
         # Setup Default Grid, Drill and Width Values
 
-    GRID ON;
+    GRID OFF;
     GRID DOTS;
-    Grid MM 1;
-    Grid ALT MM 0.5;
+    Grid MM 1.27;
+    Grid ALT MM 0.3175;
 
     Change Shape Round;
     SET DRILL_MENU 0.008in 0.010in 0.012in 0.014in 0.016in 0.020in 0.024in 0.028in 0.032in 0.036in 0.040in 0.056in 0.066in 0.076in 0.086in 0.125in;
@@ -141,10 +141,10 @@ SCRIPT LAYERS.scr #Set layers from master, Not ready yet. EXP-LAYERS.ulp in prog
 
 SCH:
         # Context and menu set from Configure/MENU.scr
-    GRID ON;
+    GRID OFF;
     GRID DOTS;
-    Grid IN .1;
-    Grid ALT IN .025;
+    Grid MM 1.27;
+    Grid ALT MM 0.3175;
 
     Change Font Vector; #This doesn't actually get set on the first running of eagle.scr, must re-run to take effect
     SET vector_font on;
